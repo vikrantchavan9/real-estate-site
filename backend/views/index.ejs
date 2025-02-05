@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Home</title>
+  <link href="/frontend/src/css/output.css" rel="stylesheet">
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100 w-72">
+  <div class="w-full max-w-md p-8 text-center bg-white rounded-lg shadow-lg h-44">
+    <h1 class="mb-6 text-3xl font-bold text-black">
+      Welcome, <%= user ? user.username : "Guest" %>!
+    </h1>
+    
+    <% if (user) { %>
+
+      <a href="/logout" required class="px-4 py-2 font-bold text-white bg-red-500 rounded hover:bg-red-600 focus:outline-none focus:shadow-outline">
+        Logout
+      </a>
+    <% } else { %>
+
+      <div class="space-x-4">
+        <a href="/signin" required class="px-4 py-2 font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline">
+          Sign In
+        </a>
+        <a href="/register" required class="px-4 py-2 font-medium text-white bg-blue-500 rounded hover:bg-blue-600 focus:outline-none focus:shadow-outline">
+          Register
+        </a>
+      </div>
+    <% } %>
+  </div>
+</body>
+</html>

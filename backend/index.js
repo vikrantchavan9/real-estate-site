@@ -1,37 +1,42 @@
-const express = require('express');
-const pool = require('./db');
-const cors = require('cors');
 require('dotenv').config();
 
+const express = require('express');
+const session = require('express-session');
+const cors = require('cors');
+const passport = require('./config/passport'); 
+const path = require('path');
+
 const app = express();
+const authRoutes = require('./routes/authRoutes');
+const propertyRoutes = require('./routes/propertyRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+
+//Middlewares
 app.use(express.json());
-app.use(cors());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(express.static('public'));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+app.use(express.urlencoded({ extended: true }));
 
-// Get all properties
-app.get('/properties', async (req, res) => {
-    try {
-        const allProperties = await pool.query('SELECT * FROM properties');
-        res.json(allProperties.rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
+// Session configuration
+app.use(
+  session({
+      secret: process.env.SESSION_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: false }, // Set to true if using HTTPS
+  })
+);
 
-// Add a new property
-app.post('/properties', async (req, res) => {
-    const { title, description, type, price, bedrooms, bathrooms, area, status } = req.body;
-    try {
-        const newProperty = await pool.query(
-            'INSERT INTO properties (title, description, type, price, bedrooms, bathrooms, area, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
-            [title, description, type, price, bedrooms, bathrooms, area, status]
-        );
-        res.json(newProperty.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/properties', propertyRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Start Server
 const PORT = process.env.PORT || 5000;
