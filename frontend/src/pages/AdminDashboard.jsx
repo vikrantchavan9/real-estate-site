@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import ImageForm from "../components/ImageForm";
-import PropTypes from "prop-types";
 
-const AdminDashboard = ({ onLogout }) => {
+const AdminDashboard = () => {
   const [properties, setProperties] = useState([]);
 
   useEffect(() => {
@@ -12,11 +11,13 @@ const AdminDashboard = ({ onLogout }) => {
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/properties");
+      const response = await axios.get(
+        "http://localhost:5000/api/admin/properties"
+      );
       const propertiesWithImages = await Promise.all(
         response.data.map(async (property) => {
           const imagesResponse = await axios.get(
-            `http://localhost:5000/properties/${property.id}/images`
+            `http://localhost:5000/api/admin/properties/${property.id}/images`
           );
           return { ...property, images: imagesResponse.data };
         })
@@ -41,7 +42,7 @@ const AdminDashboard = ({ onLogout }) => {
   return (
     <div>
       <h1 className="text-2xl font-bold mb-4">Property Listings</h1>
-      <button onClick={onLogout}>Logout</button>
+      <button>Logout</button>
       <div className="flex space-y-4">
         {properties.map((property) => (
           <div key={property.id} className=" p-4 border rounded-lg shadow-md">
@@ -87,7 +88,5 @@ const AdminDashboard = ({ onLogout }) => {
     </div>
   );
 };
-AdminDashboard.propTypes = {
-  onLogout: PropTypes.number.isRequired,
-};
+
 export default AdminDashboard;

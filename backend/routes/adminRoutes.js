@@ -1,11 +1,13 @@
 const express = require('express');
 const authMiddleware = require('../middleware/authMiddleware');
-const adminMiddleware = require('../middleware/adminMiddlweware');
+const adminMiddleware = require('../middleware/adminMiddleware');
 const pool = require('../config/db');
-const router = express.Router();
+const app = express.Router();
+
+// app.use('/api/admin', adminRoutes);
 
 // Get all users (admin-only route)
-router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+app.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const users = await pool.query('SELECT * FROM users');
         res.json(users.rows);
@@ -16,7 +18,7 @@ router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // Get a specific user by ID (admin-only route)
-router.get('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+app.get('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const user = await pool.query('SELECT * FROM users WHERE id = $1', [id]);
@@ -31,7 +33,7 @@ router.get('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // Delete a user by ID (admin-only route)
-router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
+app.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const user = await pool.query('DELETE FROM users WHERE id = $1 RETURNING *', [id]);
@@ -46,7 +48,7 @@ router.delete('/users/:id', authMiddleware, adminMiddleware, async (req, res) =>
 });
 
 // Update a user's role (admin-only route)
-router.put('/users/:id/role', authMiddleware, adminMiddleware, async (req, res) => {
+app.put('/users/:id/role', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
     const { role } = req.body;
 
@@ -66,7 +68,7 @@ router.put('/users/:id/role', authMiddleware, adminMiddleware, async (req, res) 
 });
 
 // Get all properties (admin-only route)
-router.get('/properties', authMiddleware, adminMiddleware, async (req, res) => {
+app.get('/properties', authMiddleware, adminMiddleware, async (req, res) => {
     try {
         const properties = await pool.query('SELECT * FROM properties');
         res.json(properties.rows);
@@ -77,7 +79,7 @@ router.get('/properties', authMiddleware, adminMiddleware, async (req, res) => {
 });
 
 // Delete a property by ID (admin-only route)
-router.delete('/properties/:id', authMiddleware, adminMiddleware, async (req, res) => {
+app.delete('/properties/:id', authMiddleware, adminMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
         const property = await pool.query('DELETE FROM properties WHERE id = $1 RETURNING *', [id]);
@@ -91,4 +93,4 @@ router.delete('/properties/:id', authMiddleware, adminMiddleware, async (req, re
     }
 });
 
-module.exports = router;
+module.exports = app;

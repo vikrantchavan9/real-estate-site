@@ -1,15 +1,23 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import "./index.css";
-import { AuthProvider } from "./context/AuthContext";
-import App from "./App.jsx";
+import ReactDOM from "react-dom/client";
+import { ClerkProvider } from "@clerk/clerk-react";
+import App from "./App";
 
-const root = createRoot(document.getElementById("root"));
+const clerkKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
-root.render(
-  <StrictMode>
-    <AuthProvider>
+// Ensure the script runs after the DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  const rootElement = document.getElementById("root");
+
+  if (!rootElement) {
+    console.error(
+      "Root element not found. Make sure index.html has <div id='root'></div>"
+    );
+    return;
+  }
+
+  ReactDOM.createRoot(rootElement).render(
+    <ClerkProvider publishableKey={clerkKey}>
       <App />
-    </AuthProvider>
-  </StrictMode>
-);
+    </ClerkProvider>
+  );
+});
