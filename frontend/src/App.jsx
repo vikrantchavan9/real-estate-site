@@ -15,9 +15,11 @@ import {
 // Import your pages
 import AdminDashboard from "./pages/AdminDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import Register from "./pages/Signup"; // Ensure correct path
 import PropertyList from "./components/PropertyList";
+import PropertyDetail from "./components/PropertyDetail";
 
 // ProtectedRoute: Only renders children if user is signed in; otherwise, redirects to sign-in.
 const ProtectedRoute = ({ children }) => {
@@ -52,7 +54,7 @@ AdminRoute.propTypes = {
 const Homepage = () => {
   const { isSignedIn, user } = useUser();
   return (
-    <div className="p-5 text-center">
+    <div className="p-4 text-center">
       <h1 className="text-2xl">
         Welcome {isSignedIn ? user.firstName : "Guest"}
       </h1>
@@ -65,11 +67,15 @@ const Homepage = () => {
 const App = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Homepage />} />
         {/* Login and Register pages are accessible publicly */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Property Details Page */}
+        <Route path="/properties/:id" element={<PropertyDetail />} />
 
         {/* Protected Routes */}
         <Route

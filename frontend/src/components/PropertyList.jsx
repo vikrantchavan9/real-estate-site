@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import ImageForm from "./ImageForm";
+import edit_icon from "../assets/icons/icons8-edit-50.png";
+import { Link } from "react-router-dom";
 
 const PropertyList = () => {
   const [properties, setProperties] = useState([]);
@@ -37,26 +39,45 @@ const PropertyList = () => {
     }
   };
 
+  const scrollContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      // Scroll to the rightmost side
+      scrollContainerRef.current.scrollLeft =
+        scrollContainerRef.current.scrollWidth;
+    }
+  }, []);
+
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">Property Listings</h1>
-      <div className="flex space-y-4">
+      <h1 className="mb-4 text-3xl font-bold text-green-600">
+        Property Listings
+      </h1>
+      <div className="flex space-x-4 overflow-x-auto scroll-smooth">
         {properties.map((property) => (
-          <div key={property.id} className=" p-4 border rounded-lg shadow-md">
-            <div className="flex space-x-4">
+          <div key={property.id} className="p-4 border rounded-lg shadow-md ">
+            <div className="flex space-x-4 overflow-x-auto scroll-smooth">
               {property.images.map((image) => (
-                <div key={image.id} className="relative">
+                <div key={image.id} className="relative flex-none w-64">
                   <img
                     src={image.image_url}
                     alt={`Property ${property.id} Image ${image.id}`}
-                    className="w-48 h-32 object-cover rounded-lg"
+                    className="object-cover rounded-lg"
                   />
-                  <button
+                  <img
+                    src={edit_icon}
+                    className="absolute top-0 right-0 h-10 p-1 px-3 bg-white rounded"
                     onClick={() => handleDeleteImage(image.id)}
-                    className="absolute top-0 right-0 bg-red-500 text-white p-1 rounded-full"
+                    alt=""
+                  />
+                  {/* <button
+                    onClick={() => handleDeleteImage(image.id)}
+                    src={delete_icon}
+                    className="absolute bottom-0 right-0 p-1 px-3 text-white bg-red-500 rounded"
                   >
-                    🗑️
-                  </button>
+                    Delete Image
+                  </button> */}
                 </div>
               ))}
             </div>
@@ -66,8 +87,16 @@ const PropertyList = () => {
             <p>Bedrooms: {property.bedrooms}</p>
             <p>Bathrooms: {property.bathrooms}</p>
             <p>Status: {property.status}</p>
+
             <div className="mt-4">
+              <Link
+                to={`/properties/${property.id}`}
+                className="text-blue-500 hover:underline"
+              >
+                View Details
+              </Link>
               <h3 className="text-lg font-semibold">Images</h3>
+              {/* Link to the property details page */}
             </div>
             <div className="flex">
               <div className="mt-4">

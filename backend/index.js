@@ -1,11 +1,8 @@
 require('dotenv').config();
 
 const express = require('express');
-const session = require('express-session');
 const cors = require('cors');
-const passport = require('./config/passport'); 
 const path = require('path');
-
 const app = express();
 const authRoutes = require('./routes/authRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -13,7 +10,6 @@ const adminRoutes = require('./routes/adminRoutes');
 const pool = require('../backend/config/db');
 const upload = require('../backend/multerConfig');
 const fs = require('fs'); 
-
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -26,26 +22,6 @@ app.use(express.static('public'));
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
-
-// Session configuration
-app.use(
-  session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false }, // Set to true if using HTTPS
-  })
-);
-
-// Initialize Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.use((req, res, next) => {
-  console.log("Session Data:", req.session);
-  console.log("User Data:", req.session.user);
-  next();
-});
 
 // Serve static files from the 'uploads' folder
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -60,6 +36,43 @@ app.get('/properties', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+
+app.get('/properties/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const property = await pool.query('SELECT * FROM properties WHERE id = $1', [id]);
+
+        if (property.rows.length === 0) {
+            return res.status(404).json({ message: "Property not found" });
+        }
+
+        res.json(property.rows[0]);  // Send a single object instead of an array
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+// Add this endpoint to your existing backend code
+app.get('/properties/:id/images', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const images = await pool.query('SELECT * FROM images WHERE property_id = $1', [id]);
+
+        if (images.rows.length === 0) {
+            // Return default image if no images are found
+            return res.json([{ image_url: "./uploads/default.png" }]);
+        }
+
+        res.json(images.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
 
 // Add a new property
 app.post('/properties', async (req, res) => {
@@ -76,17 +89,6 @@ app.post('/properties', async (req, res) => {
     }
 });
 
-// Add this endpoint to your existing backend code
-app.get('/properties/:id/images', async (req, res) => {
-    const { id } = req.params;
-    try {
-        const images = await pool.query('SELECT * FROM images WHERE property_id = $1', [id]);
-        res.json(images.rows);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-});
 
 // Add this endpoint to your existing backend code
 app.post('/images', async (req, res) => {

@@ -12,11 +12,6 @@ const ImageForm = ({ propertyId, onImageUploaded }) => {
     setImageUrl(""); // Clear URL input if a file is chosen
   };
 
-  const handleUrlChange = (e) => {
-    setImageUrl(e.target.value);
-    setFile(null); // Clear file input if a URL is provided
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -66,14 +61,6 @@ const ImageForm = ({ propertyId, onImageUploaded }) => {
           className="w-full p-2 border rounded"
           disabled={!!imageUrl}
         />
-        <input
-          type="text"
-          placeholder="Image URL"
-          value={imageUrl}
-          onChange={handleUrlChange}
-          className="w-full p-2 border rounded"
-          disabled={!!file}
-        />
       </div>
 
       <label className="flex items-center space-x-2">
@@ -86,7 +73,7 @@ const ImageForm = ({ propertyId, onImageUploaded }) => {
       </label>
       <button
         type="submit"
-        className="w-full bg-blue-500 text-white p-2 rounded"
+        className="w-full p-2 text-white bg-blue-500 rounded"
       >
         Submit Image
       </button>
